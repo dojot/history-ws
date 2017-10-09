@@ -71,7 +71,6 @@ class HistoryUtil(object):
 
     @staticmethod
     def get_db():
-        # TODO should come from conf, not method
         return settings.MONGO_DB['device_history']
 
     @staticmethod
@@ -91,8 +90,8 @@ class HistoryUtil(object):
 
         if ftype is not None:
             if not ftype(params[field]):
-                print("failed to validate field %s %s" % (field, params[field]))
-                raise falcon.HTTPInvalidParam('%s must be of type %s' % (field, ftype.__name__), field)
+                raise falcon.HTTPInvalidParam(
+                    '%s must be of type %s' % (field, ftype.__name__), field)
 
 class DeviceHistory(object):
     """Service used to retrieve a given device historical data"""
