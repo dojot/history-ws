@@ -281,7 +281,7 @@ def get_topic(service, subject, global_subject=False):
 if __name__ == '__main__':
     # Spawns tenancy management thread
     try:
-        tenancy_topic = get_topic('internal', settings.TENANCY_SUBJECT, True)
+        tenancy_topic = get_topic('tenancy_management', settings.TENANCY_SUBJECT, True)
         handler = TenancyHandler()
         tenant_watcher = KafkaListener(tenancy_topic, handler, name="tenancy-watcher")
         tenant_watcher.start()
