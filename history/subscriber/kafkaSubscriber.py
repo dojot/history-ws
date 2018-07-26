@@ -33,6 +33,7 @@ class KafkaEventHandler(object):
         """
         raise NotImplementedError("Abstract method called")
 
+
 class TenancyHandler(KafkaEventHandler):
 
     def __init__(self):
@@ -111,7 +112,7 @@ class DataHandler(KafkaEventHandler):
         return self.db['device_history'][collection_name]
 
     @staticmethod
-    def parse_datetime(timestamp):
+    def parse_datetime(timestamp=None):
         if timestamp is None:
             return datetime.utcnow()
 
@@ -133,7 +134,6 @@ class DataHandler(KafkaEventHandler):
             return parse(timestamp)
         except TypeError as error:
             raise TypeError('Timestamp could not be parsed: {}\n{}'.format(timestamp, error))
-
 
     def handle_event(self, message):
         """
@@ -158,6 +158,7 @@ class DataHandler(KafkaEventHandler):
             LOGGER.error('Received event cannot be traced to a valid device. Ignoring')
             return
 
+        # timestamp of when data was sent from device
         timestamp = DataHandler.parse_datetime(metadata.get('timestamp', None))
 
         docs = []
@@ -181,6 +182,10 @@ class DataHandler(KafkaEventHandler):
         if len(docs) > 0:
             try:
                 mongo = self._get_collection(data)
+                # timestamp of when data was saved to db
+                saved_timestamp = DataHandler.parse_datetime()
+                for d in docs:
+                    d['saved_ts'] = saved_timestamp
                 mongo.insert_many(docs)
             except Exception as error:
                 LOGGER.warn('Failed to persist received information.\n%s', error)
