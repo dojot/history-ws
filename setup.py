@@ -3,8 +3,8 @@ import os
 
 import setuptools
 
-from pip import download
-from pip import req
+from pip._internal import download
+from pip._internal import req
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
