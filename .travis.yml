@@ -40,7 +40,7 @@ before_script:
   - docker-compose -f ./tests/docker-compose.yml up -d mongodb
   # - python setup.py install
 script:
-  - docker build -t ${TRAVIS_REPO_SLUG} .
+  - docker build -t ${TRAVIS_REPO_SLUG} docker/history.docker
   - tests/start-test.sh
 after_success:
   - travis/publish.sh
