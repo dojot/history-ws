@@ -227,12 +227,14 @@ class NotificationHistory(object):
                 raise falcon.HTTPInvalidParam('Must be integer.','hLimit')
         else:
             limit_val = False
-            for field in request.params.keys():
+
+        for field in request.params.keys():
+            if(field != "lastN" and field != "hLimit"):
                 value = request.params[field]
 
                 if(field != "subject"):
                     field = "metaAttrsFilter." + field
-                
+                    
                 value = HistoryUtil.model_value(value, HistoryUtil.check_type(value)) 
 
                 query[field] = value 
