@@ -205,19 +205,30 @@ class NotificationHistory(object):
         collection = HistoryUtil.get_collection(req.context['related_service'], "notifications")
         history = {}
         logger.info("Will retrieve notifications")
-        filter_query = req.params
-        query = NotificationHistory.get_query(filter_query)      
+        query = NotificationHistory.get_query(req)      
         history['notifications'] = NotificationHistory.get_notifications(collection, query)
 
         resp.status = falcon.HTTP_200
         resp.body = json.dumps(history)
 
     @staticmethod
-    def get_query(filter_query):
+    def get_query(request):
         query = {}
-        if(filter_query):
-            for field in filter_query.keys():
-                value = filter_query[field]
+
+        if 'lastN' in request.params.keys():
+            try:
+                limit_val = int(request.params['lastN'])
+            except ValueError as e:
+                raise falcon.HTTPInvalidParam('Must be integer.', 'lastN')
+        elif 'hLimit' in request.params.keys():
+            try:
+                limit_val = int(request.params['hLimit'])
+            except ValueError as e:
+                raise falcon.HTTPInvalidParam('Must be integer.','hLimit')
+        else:
+            limit_val = False
+            for field in request.params.keys():
+                value = request.params[field]
 
                 if(field != "subject"):
                     field = "metaAttrsFilter." + field
@@ -229,7 +240,7 @@ class NotificationHistory(object):
         sort = [('ts', pymongo.DESCENDING)]
         ls_filter = {"_id" : False, '@timestamp': False, '@version': False}
 
-        return {"query": query, "limit_val": 10, "sort": sort, "filter": ls_filter}
+        return {"query": query, "limit_val": limit_val, "sort": sort, "filter": ls_filter}
     
     @staticmethod
     def get_notifications(collection, query):
