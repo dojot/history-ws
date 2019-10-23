@@ -31,7 +31,23 @@ class TestNotificationHistory:
             mock_model_value.return_value = 'bar'
             filter_query = {"key":"foo"}
             returned_query = NotificationHistory.get_query(filter_query)
-            expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'limit_val': 10, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
+            expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
+            assert returned_query == expected_query
+
+     def test_get_query_lastN(self):
+        with patch.object(HistoryUtil,'model_value') as mock_model_value:
+            mock_model_value.return_value = 'bar'
+            filter_query = {"key":"foo"}
+            returned_query = NotificationHistory.get_query(filter_query)
+            expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'lastN': 10, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
+            assert returned_query == expected_query
+
+     def test_get_query_hLimit(self):
+        with patch.object(HistoryUtil,'model_value') as mock_model_value:
+            mock_model_value.return_value = 'bar'
+            filter_query = {"key":"foo"}
+            returned_query = NotificationHistory.get_query(filter_query)
+            expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'hLimit': 10, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
             assert returned_query == expected_query
     
     @patch('pymongo.collection.Collection.find')
