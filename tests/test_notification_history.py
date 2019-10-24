@@ -26,10 +26,24 @@ class TestNotificationHistory:
         NotificationHistory.on_get(req,resp)
         assert resp.status == falcon.HTTP_200
     
-    def test_parse_request(self):
+    def test_get_query_lastN(self):
         request = MagicMock()
         request.params.keys.return_value = ['lastN']
         req_content = {"lastN":10}
+        request.params.__getitem__.side_effect = lambda key: req_content[key]
+        assert NotificationHistory.get_query(request)
+
+    def test_get_query_hLimit(self):
+        request = MagicMock()
+        request.params.keys.return_value = ['hLimit']
+        req_content = {"hLimit":10}
+        request.params.__getitem__.side_effect = lambda key: req_content[key]
+        assert NotificationHistory.get_query(request)
+    
+    def test_get_query(self):
+        request = MagicMock()
+        request.params.keys.return_value = ['test']
+        req_content = {"test":10}
         request.params.__getitem__.side_effect = lambda key: req_content[key]
         assert NotificationHistory.get_query(request)
     
