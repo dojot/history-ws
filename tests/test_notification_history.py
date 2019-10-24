@@ -31,7 +31,7 @@ class TestNotificationHistory:
             mock_model_value.return_value = 'bar'
             filter_query = {"key":"foo"}
             returned_query = NotificationHistory.get_query(filter_query)
-            expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'lastN': 10, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
+            expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
             assert returned_query == expected_query
     
     @patch('pymongo.collection.Collection.find')
@@ -41,5 +41,5 @@ class TestNotificationHistory:
             {"ts":1567701021},
             {"ts":1567099821}]
         }
-        query = {"query":"","filter":"","lastN":0,"sort":0}
+        query = {"query":"","filter":"","limit_val":0,"sort":0}
         assert NotificationHistory.get_notifications(mock_find,query) == []            
