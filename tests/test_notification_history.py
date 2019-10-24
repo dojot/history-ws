@@ -31,23 +31,7 @@ class TestNotificationHistory:
         request.params.keys.return_value = ['lastN']
         req_content = {"lastN":10}
         request.params.__getitem__.side_effect = lambda key: req_content[key]
-        assert NotificationHistory.parse_request(request,'test')
-    
-    def test_parse_request_invalid_lastN(self):
-        with pytest.raises(falcon.HTTPInvalidParam):
-            request = MagicMock()
-            request.params.keys.return_value = ['lastN']
-            req_content = {"lastN":"test"}
-            request.params.__getitem__.side_effect = lambda key: req_content[key]
-            NotificationHistory.parse_request(request,"test")
-
-    def test_parse_request_invalid_hLimit(self):
-        with pytest.raises(falcon.HTTPInvalidParam):
-            request = MagicMock()
-            request.params.keys.return_value = ['hLimit']
-            req_content = {"hLimit":"test"}
-            request.params.__getitem__.side_effect = lambda key: req_content[key]
-            NotificationHistory.parse_request(request,"test")
+        assert NotificationHistory.get_query(request)
     
     @patch('pymongo.collection.Collection.find')
     def test_get_notifications(self, mock_find):
