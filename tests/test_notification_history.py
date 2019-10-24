@@ -42,8 +42,8 @@ class TestNotificationHistory:
     
     def test_get_query(self):
         request = MagicMock()
-        request.params.keys.return_value = ['test']
-        req_content = {"test":10}
+        request.params.keys.return_value = []
+        req_content = {}
         request.params.__getitem__.side_effect = lambda key: req_content[key]
         assert NotificationHistory.get_query(request)
     
