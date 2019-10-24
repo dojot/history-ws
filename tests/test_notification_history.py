@@ -34,7 +34,7 @@ class TestNotificationHistory:
             expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
             assert returned_query == expected_query
 
-     def test_get_query_lastN(self):
+    def test_get_query_lastN(self):
         with patch.object(HistoryUtil,'model_value') as mock_model_value:
             mock_model_value.return_value = 'bar'
             filter_query = {"key":"foo"}
@@ -42,7 +42,7 @@ class TestNotificationHistory:
             expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'lastN': 10, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
             assert returned_query == expected_query
 
-     def test_get_query_hLimit(self):
+    def test_get_query_hLimit(self):
         with patch.object(HistoryUtil,'model_value') as mock_model_value:
             mock_model_value.return_value = 'bar'
             filter_query = {"key":"foo"}
