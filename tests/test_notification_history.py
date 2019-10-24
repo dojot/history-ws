@@ -26,13 +26,28 @@ class TestNotificationHistory:
         NotificationHistory.on_get(req,resp)
         assert resp.status == falcon.HTTP_200
     
-    def test_get_query(self):
-        with patch.object(HistoryUtil,'model_value') as mock_model_value:
-            mock_model_value.return_value = 'bar'
-            filter_query = {"key":"foo"}
-            returned_query = NotificationHistory.get_query(filter_query)
-            expected_query = {'query': {'metaAttrsFilter.key': 'bar'}, 'sort': [('ts', -1)], 'filter': {'_id': False, '@timestamp': False, '@version': False}}
-            assert returned_query == expected_query
+    def test_parse_request(self):
+        request = MagicMock()
+        request.params.keys.return_value = ['lastN']
+        req_content = {"lastN":10}
+        request.params.__getitem__.side_effect = lambda key: req_content[key]
+        assert NotificationHistory.parse_request(request,'test')
+    
+    def test_parse_request_invalid_lastN(self):
+        with pytest.raises(falcon.HTTPInvalidParam):
+            request = MagicMock()
+            request.params.keys.return_value = ['lastN']
+            req_content = {"lastN":"test"}
+            request.params.__getitem__.side_effect = lambda key: req_content[key]
+            NotificationHistory.parse_request(request,"test")
+
+    def test_parse_request_invalid_hLimit(self):
+        with pytest.raises(falcon.HTTPInvalidParam):
+            request = MagicMock()
+            request.params.keys.return_value = ['hLimit']
+            req_content = {"hLimit":"test"}
+            request.params.__getitem__.side_effect = lambda key: req_content[key]
+            NotificationHistory.parse_request(request,"test")
     
     @patch('pymongo.collection.Collection.find')
     def test_get_notifications(self, mock_find):
