@@ -306,7 +306,6 @@ The service dependencies are listed in the next topics.
 ## **Others Services**
 
   - Kafka (tested using Kafka version 2.12);
-  - Zookeeper (tested using Zookeeper version 3.4);
   - MongoDB (tested using MongoDB version 3.2);
 
 
