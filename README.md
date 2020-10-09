@@ -1,4 +1,4 @@
-# **dojot History and Persister services**
+# **History and Persister services**
 
 The _History_ and _Persister_ services can be considered as "siblings",
 _History_ has the role of retrieving the historical data that was recorded in
@@ -16,11 +16,39 @@ To better understand the scenario where these two services are employed, let's e
 
 > (*) A Broker is a component that allows a group of devices to send their data and be managed by it, using their own native protocols.
 
-## **About History service**
+
+# **Table of Contents**
+
+- [**History and Persister services**](#history-and-persister-services)
+- [**Table of Contents**](#table-of-contents)
+- [**History service**](#history-service)
+  - [**History service configuration**](#history-service-configuration)
+  - [**How to install History service**](#how-to-install-history-service)
+    - [**History service in standalone mode**](#history-service-in-standalone-mode)
+    - [**History service on Docker**](#history-service-on-docker)
+  - [**How to run the History service**](#how-to-run-the-history-service)
+- [**Persister service**](#persister-service)
+  - [**Persister service configuration**](#persister-service-configuration)
+        - [Kafka related configuration](#kafka-related-configuration)
+        - [MongoDB related configuration](#mongodb-related-configuration)
+  - [**How to install Persister service**](#how-to-install-persister-service)
+    - [**Persister service in standalone mode**](#persister-service-in-standalone-mode)
+    - [**Persister service on Docker**](#persister-service-on-docker)
+  - [**Running the Persister service**](#running-the-persister-service)
+- [**Tests**](#tests)
+- [**Dependencies**](#dependencies)
+    - [**Dojot Services**](#dojot-services)
+    - [**Others Services**](#others-services)
+- [**Documentation**](#documentation)
+    - [**Generate API documentation**](#generate-api-documentation)
+- [**Issues and help**](#issues-and-help)
+
+
+# **History service**
 
 The _History_ service is used when it is necessary to obtain historical data
 from devices. Through its _REST_ interface it is possible to apply filters to
-obtain only the desired data, like the _device id_, the _attributes_ to be
+obtain only the desired data from a device, like the _attributes_ to be
 returned, the _time period_ in which the data was measured, the _quantity_ and
 _order_ in which the data was returned.
 
@@ -30,27 +58,25 @@ See the skeleton of the request that can be made to _History_ service:
 http://{host}:{port}/device/{device_id}/history?attr={attr}&dateFrom={dateFrom}&dateTo={dateTo}&lastN|firstN={lastN|firstN}
 ```
 
-For information on using the REST API, you can also check the
-[API documentation](https://dojot.github.io/history/apiary_latest.html).
 
-
-### **History service configuration**
+## **History service configuration**
 
 The settings are made through environment variables, so we have the following:
 
 Environment variable        | Purpose                                                      | Default Value
 ----------------------------|--------------------------------------------------------------|----------------
-LOG_LEVEL                   | Sets the log level                                           | "INFO"
 AUTH_URL                    | Auth url address                                             | "http://auth:5000"
 DEVICE_MANAGER_URL          | Device Manager url address                                   | "http://device-manager:5000"
 HISTORY_DB_ADDRESS          |History database's address                                    |"mongodb"
 HISTORY_DB_PORT             |History database's port                                       |27017
 HISTORY_DB_REPLICA_SET      |History database's replica set address                        |None
+LOG_LEVEL                   | Sets the log level                                           | "INFO"
 
+********************************************************************************
 
-### **How to install History service**
+## **How to install History service**
 
-#### **History service in standalone mode**
+### **History service in standalone mode**
 
 The service is written in Python 3.6 and to run it in standalone mode you need
 to install the libraries that the service depends on.
@@ -117,7 +143,7 @@ it into your virtual environment:
 $> python setup.py install
 ~~~
 
-#### **History service on Docker**
+### **History service on Docker**
 
 Another alternative is to use [Docker](https://www.docker.com/)  to run the
 service. To build the container, from the repository's root:
@@ -128,7 +154,16 @@ service. To build the container, from the repository's root:
 $> docker build -t <tag-for-history-docker> -f docker/history.docker .
 ```
 
-### **How to run the History service**
+__NOTE THAT__ you can use the official images provided by dojot in its
+[DockerHub page](https://hub.docker.com/r/dojot/history).
+
+********************************************************************************
+
+## **How to run the History service**
+
+Beforehand, you need an already running dojot instance in your machine.
+Check out the [dojot documentation](https://dojotdocs.readthedocs.io)
+for more information on installation methods.
 
 To run the _History_ service on standalone mode, just set all needed environment
 variables and execute:
@@ -144,29 +179,37 @@ To run the service on docker, you can use:
 $> docker run -i -t <tag-for-history-docker>
 ```
 
-********************************************************************************
 
-## **About Persister service**
+# **Persister service**
 
-The _Persister_, as the name suggests, is the responsible for the persistence of
-the data sent from devices. It is always aware of Kafka's notifications, when
-new device data is registered in Kafka, _Persister_ receives a notification and
-starts the process of transferring data _from_ Kafka _to_ MongoDB. In this way,
-it is what populates the measurement history database of the devices.
+The _History_ service (as we saw earlier) is only capable of retrieving data from
+the MongoDB instance, it is not able to store any data. It is the _Persister's_
+duty to make this happen: it is notified whenever a new message has arrived in
+Kafka and stores it in MongoDB.
 
-
-### **Persister service configuration**
+## **Persister service configuration**
 
 The settings are made through environment variables, so we have the following:
 
 Environment variable        | Purpose                                                      | Default Value
 ----------------------------|--------------------------------------------------------------|----------------
-PERSISTER_PORT              |Port to be used by persister sevice's endpoints               |8057
-LOG_LEVEL                   |Define minimum logging level                                  |"INFO"
 AUTH_URL                    |Auth url address                                              |"http://auth:5000"
 DATA_BROKER_URL             |Data Broker address                                           |"http://data-broker"
 DEVICE_MANAGER_URL          |Device Manager address                                        |"http://device-manager:5000"
+LOG_LEVEL                   |Define minimum logging level                                  |"INFO"
+PERSISTER_PORT              |Port to be used by persister sevice's endpoints               |8057
 
+##### Kafka related configuration
+
+Environment variable        | Purpose                                                      | Default Value
+----------------------------|--------------------------------------------------------------|----------------
+DOJOT_SERVICE_MANAGEMENT    |Global service to use when publishing dojot management events |"dojot-management"
+DOJOT_SUBJECT_TENANCY       |Global subject to use when publishing tenancy lifecycle events|"dojot.tenancy"
+DOJOT_SUBJECT_DEVICES       |Global subject to use when receiving device lifecycle events  |"dojot.device-manager.device"
+DOJOT_SUBJECT_DEVICE_DATA   |Global subject to use when receiving data from devices        |"device-data"
+KAFKA_ADDRESS               |Kafta address                                                 |"kafka"
+KAFKA_PORT                  |Kafka port                                                    |9092
+KAFKA_GROUP_ID              |Group ID used when creating consumers                         |"history"
 
 ##### MongoDB related configuration
 
@@ -179,22 +222,11 @@ HISTORY_DB_DATA_EXPIRATION  | Time (in seconds) that the data must be kept in th
 MONGO_SHARD                 |Activate the use of sharding or not                           | False
 
 
-##### Kafka related configuration
+********************************************************************************
 
-Environment variable        | Purpose                                                      | Default Value
-----------------------------|--------------------------------------------------------------|----------------
-KAFKA_ADDRESS               |Kafta address                                                 |"kafka"
-KAFKA_PORT                  |Kafka port                                                    |9092
-KAFKA_GROUP_ID              |Group ID used when creating consumers                         |"history"
-DOJOT_SUBJECT_TENANCY       |Global subject to use when publishing tenancy lifecycle events|"dojot.tenancy"
-DOJOT_SUBJECT_DEVICES       |Global subject to use when receiving device lifecycle events  |"dojot.device-manager.device"
-DOJOT_SUBJECT_DEVICE_DATA   |Global subject to use when receiving data from devices        |"device-data"
-DOJOT_SERVICE_MANAGEMENT    |Global service to use when publishing dojot management events |"dojot-management"
+## **How to install Persister service**
 
-
-### **How to install Persister service**
-
-#### **Persister service in standalone mode**
+### **Persister service in standalone mode**
 
 The Persister service is installed in exactly the
 [same way as the History service](#history-service-in-standalone-mode), just
@@ -204,15 +236,23 @@ service. If you want, you can also use the same _virtual environment_ as
 _History_ service, no problem, but be aware of that.
 
 
-#### **Persister service on Docker**
+### **Persister service on Docker**
 
-Like the _standalone mode_, the _Persister_ on Docker is identical to
-[that of the History service](#history-service-on-docker),
+Like the _standalone mode_, the _Persister_ on Docker is identical to the
+[History service's one](#history-service-on-docker),
 paying attention only to the name of the docker image to be generated.
 In this case, it must refer to the Persister service.
 
+__NOTE THAT__ you can use the official images provided by dojot in its
+[DockerHub page](https://hub.docker.com/r/dojot/persister).
 
-### **Running the Persister service**
+********************************************************************************
+
+## **Running the Persister service**
+
+Beforehand, you need an already running dojot instance in your machine.
+Check out the [dojot documentation](https://dojotdocs.readthedocs.io)
+for more information on installation methods.
 
 To run the _Persister_, after setting the environment variables, execute:
 
@@ -220,26 +260,7 @@ To run the _Persister_, after setting the environment variables, execute:
 $> python -m history.subscriber.persister
 ```
 
-********************************************************************************
-
-## **API documentation**
-
-The API documentation for this service is written as
-[API blueprints](https://apiblueprint.org/).
-To generate a simple web page from it, you must execute the commands below:
-
-```bash
-# you may need sudo for this:
-$> npm install -g aglio
-
-# static webpage
-$> aglio -i ./docs/history.apib -o ./docs/history.html
-
-# serve apis locally
-$> aglio -i ./docs/history.apib -s
-```
-
-## **Tests**
+# **Tests**
 
 History has some automated test scripts. We use [Dredd]
 (<http://dredd.org/en/latest/>) to execute them:
@@ -268,3 +289,52 @@ Run the `pytest` module to run the coverage tests:
 ```bash
 $> python -m pytest --cov-report=html --cov=history tests/
 ```
+
+# **Dependencies**
+
+The service dependencies are listed in the next topics.
+
+- _Dojot Services_: They are dojot services;
+- _Others Services_: They are external services;
+
+### **Dojot Services**
+
+  - [Auth](https://github.com/dojot/auth);
+  - [Device Manager](https://github.com/dojot/device-manager);
+  - [Data Broker](https://github.com/dojot/data-broker);
+
+### **Others Services**
+
+  - Kafka (tested using Kafka version 2.12);
+  - MongoDB (tested using MongoDB version 3.2);
+
+
+# **Documentation**
+
+Check the documentation for more information:
+
+- [Latest History API documentation](https://dojot.github.io/history/apiary_latest.html)
+- [Development History API documentation](https://dojot.github.io/history/apiary_development.html)
+- [Latest dojot platform documentation](https://dojotdocs.readthedocs.io/en/latest)
+
+### **Generate API documentation**
+
+The API documentation for this service is written as
+[API blueprint](https://apiblueprint.org/).
+To generate a simple web page from it, you must execute the commands below:
+
+```bash
+# you may need sudo for this:
+$> npm install -g aglio
+
+# static webpage
+$> aglio -i ./docs/history.apib -o ./docs/history.html
+
+# serve apis locally
+$> aglio -i ./docs/history.apib -s
+```
+
+# **Issues and help**
+
+If you found a problem or need help, leave an issue in the main
+[dojot repository](https://github.com/dojot/dojot) and we will help you!
