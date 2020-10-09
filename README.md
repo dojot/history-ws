@@ -37,10 +37,10 @@ To better understand the scenario where these two services are employed, let's e
   - [**Running the Persister service**](#running-the-persister-service)
 - [**Tests**](#tests)
 - [**Dependencies**](#dependencies)
-    - [**Dojot Services**](#dojot-services)
-    - [**Others Services**](#others-services)
+  - [**Dojot Services**](#dojot-services)
+  - [**Others Services**](#others-services)
 - [**Documentation**](#documentation)
-    - [**Generate API documentation**](#generate-api-documentation)
+  - [**Generate API documentation**](#generate-api-documentation)
 - [**Issues and help**](#issues-and-help)
 
 
@@ -297,15 +297,16 @@ The service dependencies are listed in the next topics.
 - _Dojot Services_: They are dojot services;
 - _Others Services_: They are external services;
 
-### **Dojot Services**
+## **Dojot Services**
 
   - [Auth](https://github.com/dojot/auth);
   - [Device Manager](https://github.com/dojot/device-manager);
   - [Data Broker](https://github.com/dojot/data-broker);
 
-### **Others Services**
+## **Others Services**
 
   - Kafka (tested using Kafka version 2.12);
+  - Zookeeper (tested using Zookeeper version 3.4);
   - MongoDB (tested using MongoDB version 3.2);
 
 
@@ -317,7 +318,7 @@ Check the documentation for more information:
 - [Development History API documentation](https://dojot.github.io/history/apiary_development.html)
 - [Latest dojot platform documentation](https://dojotdocs.readthedocs.io/en/latest)
 
-### **Generate API documentation**
+## **Generate API documentation**
 
 The API documentation for this service is written as
 [API blueprint](https://apiblueprint.org/).
