@@ -4,6 +4,6 @@ gevent==1.1.1
 python-dateutil>=0.0.0
 pymongo==3.2.2
 requests==2.20.0
-dojot.module==0.1.0
+dojot.module @ git+git://github.com/dojot/dojot-module-python.git@8f189a2efe68976067fc573c77b73451f495c074
 pytest==4.0.0
 pytest-cov==2.6.0
