@@ -68,11 +68,11 @@ class AuthMiddleware(object):
         try:
             data = json.loads(AuthMiddleware._decode_base64(payload))
             # to ensure backward compatibility
-            if ('iss' in data):
+            if ('service' in data):
+                return data['service']
+            elif ('iss' in data):
                 iss = data['iss']
                 return iss[iss.rindex('/') + 1:]
-            elif ('service' in data):
-                return data['service']
             else:
                 return None
         except Exception as exception:
