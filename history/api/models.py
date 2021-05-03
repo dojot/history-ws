@@ -73,6 +73,8 @@ class AuthMiddleware(object):
                 return iss[iss.rindex('/') + 1:]
             elif ('service' in data):
                 return data['service']
+            else:
+                return None
         except Exception as exception:
             logger.error(exception)
             return None
